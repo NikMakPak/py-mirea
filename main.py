@@ -237,6 +237,128 @@ class Main(tk.Frame):
         vsb = ttk.Scrollbar(orient="horizontal", command=self.tree.xview)
         self.tree.configure(xscrollcommand=vsb.set)
         vsb.place(rely=0.97, relwidth=1, anchor=W, height=15)
+        
+        def select_item(a):
+            curItem = self.tree.focus()
+            if curItem != '':
+                self.value_lastName.config(
+                    text=self.tree.item(curItem)['values'][1])
+                self.value_name.config(
+                    text=self.tree.item(curItem)['values'][2])
+                self.value_midleName.config(
+                    text=self.tree.item(curItem)['values'][3])
+                self.value_birth.config(
+                    text=self.tree.item(curItem)['values'][4])
+                self.value_placeBirth.config(
+                    text=self.tree.item(curItem)['values'][5])
+                self.value_Namber.config(
+                    text=self.tree.item(curItem)['values'][6])
+                self.value_dateGet.config(
+                    text=self.tree.item(curItem)['values'][7])
+                self.value_whoGet.config(
+                    text=self.tree.item(curItem)['values'][8])
+                self.value_codeWho.config(
+                    text=self.tree.item(curItem)['values'][9])
+                self.value_adresReg.config(
+                    text=self.tree.item(curItem)['values'][10])
+                self.value_snils.config(
+                    text=self.tree.item(curItem)['values'][11])
+                self.value_tax.config(
+                    text=self.tree.item(curItem)['values'][12])
+                self.value_certNum.config(
+                    text=self.tree.item(curItem)['values'][13])
+                self.value_certPlace.config(
+                    text=self.tree.item(curItem)['values'][14])
+                self.value_LNMFather.config(
+                    text=self.tree.item(curItem)['values'][15])
+                self.value_LNMMather.config(
+                    text=self.tree.item(curItem)['values'][16])
+
+                try:
+                    tempImg = Image.open(self.tree.item(curItem)['values'][17])
+                    tempImg = tempImg.resize((195, 285), Image.LANCZOS)
+                    self.img1 = ImageTk.PhotoImage(tempImg)
+                    self.image_container = self.canvas.create_image(0, 0,
+                                                                    anchor="nw",
+                                                                    image=self.img1)
+                    self.canvas.itemconfig(self.image_container,
+                                           image=self.img1)
+                except:
+                    print("Фото не найдено")
+
+        self.tree.heading('ID', text='ID')
+        self.tree.heading('lastName', text='Фамилия')
+        self.tree.heading('Name', text='Имя')
+        self.tree.heading('middleName', text='Отчество')
+        self.tree.heading('both', text='Дата рождения')
+        self.tree.heading('city', text='Место рождения')
+        self.tree.heading('serialNumber', text='Серийный номер')
+        self.tree.heading('dateReg', text='Дата выдачи')
+        self.tree.heading('placeIssue', text='Паспорт выдан')
+        self.tree.heading('divisionCode', text='Код подразделения')
+        self.tree.heading('agresReg', text='Адрес регистрации')
+        self.tree.heading('SNILS', text='СНИЛС')
+        self.tree.heading('tax', text='ИНН')
+        self.tree.heading('birthCertificat',
+                          text='Номер сведетельства о рождении')
+        self.tree.heading('issueCertificate',
+                          text='Орган выдачи сведетельства')
+        self.tree.heading('LNMFather', text='ФИО отца')
+        self.tree.heading('LNMMather', text='ФИО матери')
+        self.tree.bind('<ButtonRelease-1>', select_item)
+
+        self.tree.pack(side=tk.LEFT)
+        curItem = self.tree.focus()
+        print(self.tree.item(curItem))
+
+        scroll = tk.Scrollbar(self, command=self.tree.yview)
+        scroll.pack(side=tk.LEFT, fill=tk.Y)
+        self.tree.configure(yscrollcommand=scroll.set)
+
+    def records(self, lastName, Name, middleName, both, city, serialNumber,
+                dateReg, placeIssue, divisionCode, agresReg, SNILS, tax,
+                birthCertificat, issueCertificate, LNMFather, LNMMather,
+                LinkPhoto):
+        self.db.insert_data(lastName, Name, middleName, both, city,
+                            serialNumber, dateReg, placeIssue, divisionCode,
+                            agresReg, SNILS, tax, birthCertificat,
+                            issueCertificate, LNMFather, LNMMather, LinkPhoto)
+        self.view_records()
+
+    def update_record(self, lastName, Name, middleName, both, city,
+                      serialNumber, dateReg, placeIssue, divisionCode,
+                      agresReg, SNILS, tax, birthCertificat, issueCertificate,
+                      LNMFather, LNMMather, LinkPhoto):
+        self.db.c.execute('''UPDATE DataBase SET lastName=?, Name=?, 
+                          middleName=?, both=?, city=?, serialNumber=?, 
+                          dateReg=?, placeIssue=?, divisionCode=?, agresReg=?,
+                          SNILS=?, tax=?, birthCertificat=?, 
+                          issueCertificate=?, LNMFather=?, LNMMather=?,
+                          LinkPhoto=?  WHERE ID=?''',
+                          (
+                              lastName, Name, middleName, both, city,
+                              serialNumber,
+                              dateReg, placeIssue, divisionCode, agresReg,
+                              SNILS,
+                              tax, birthCertificat, issueCertificate,
+                              LNMFather,
+                              LNMMather, LinkPhoto,
+                              self.tree.set(self.tree.selection()[0], '#1')))
+        self.db.conn.commit()
+        self.view_records()
+
+    def view_records(self):
+        self.db.c.execute('''SELECT * FROM DataBase''')
+        [self.tree.delete(i) for i in self.tree.get_children()]
+        [self.tree.insert('', 'end', values=row) for row in
+         self.db.c.fetchall()]
+
+    def delete_records(self):
+        for selection_item in self.tree.selection():
+            self.db.c.execute('''DELETE FROM DataBase WHERE id=?''',
+                              [self.tree.set(selection_item, '#1')])
+        self.db.conn.commit()
+        self.view_records()
 
 
 class Child():
@@ -287,7 +409,7 @@ if __name__ == "__main__":
     db = DB()
     app = Main(root)
     app.pack()
-    root.title("ReadPass")
+    root.title("DocScan")
     root.geometry("1280x720")
     root.resizable(True, True)
     root.mainloop()
