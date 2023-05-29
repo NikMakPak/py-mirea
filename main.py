@@ -359,6 +359,48 @@ class Main(tk.Frame):
                               [self.tree.set(selection_item, '#1')])
         self.db.conn.commit()
         self.view_records()
+	
+    def search_records(self, description):
+        description = '%' + description + '%'
+        sqlString = f"""SELECT * FROM DataBase  
+        WHERE lastName LIKE '{description}'  OR Name LIKE '{description}' 
+        OR middleName LIKE '{description}'  OR both LIKE '{description}' 
+        OR city LIKE '{description}'  OR serialNumber LIKE '{description}' 
+        OR dateReg LIKE '{description}'  OR placeIssue LIKE '{description}' 
+        OR divisionCode LIKE '{description}'  OR agresReg LIKE '{description}' 
+        OR SNILS LIKE '{description}' OR tax LIKE '{description}' 
+        OR birthCertificat LIKE '{description}' 
+        OR issueCertificate LIKE '{description}' 
+        OR LNMFather LIKE '{description}' OR LNMMather LIKE '{description}' 
+        OR LinkPhoto LIKE '{description}' OR ID LIKE '{description}'"""
+        self.db.c.execute(sqlString)
+        [self.tree.delete(i) for i in self.tree.get_children()]
+        [self.tree.insert('', 'end', values=row) for row in
+         self.db.c.fetchall()]
+
+    def search_between(self, firstValue, secondValue):
+        sqlString = f"""SELECT * FROM DataBase WHERE both 
+        BETWEEN {firstValue} and {secondValue} 
+        OR serialNumber BETWEEN {firstValue} and {secondValue} 
+        OR dateReg BETWEEN {firstValue} and {secondValue} 
+        OR divisionCode BETWEEN {firstValue} and {secondValue} 
+        OR SNILS BETWEEN {firstValue} and {secondValue}
+        OR tax BETWEEN {firstValue} and {secondValue} 
+        OR birthCertificat BETWEEN {firstValue} and {secondValue}
+        OR ID BETWEEN {firstValue} and {secondValue}"""
+        self.db.c.execute(sqlString)
+        [self.tree.delete(i) for i in self.tree.get_children()]
+        [self.tree.insert('', 'end', values=row) for row in
+         self.db.c.fetchall()]
+
+    def open_dialog(self):
+        Child()
+
+    def open_update_dialog(self):
+        Update()
+
+    def open_search_dialog(self):
+        Search()
 
 
 class Child():
