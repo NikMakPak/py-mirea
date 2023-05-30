@@ -20,7 +20,7 @@ pytesseract.pytesseract.tesseract_cmd = \
     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 class Main(tk.Frame):
-	def __init__(self, root):
+    def __init__(self, root):
         super().__init__(root)
         self.init_main()
         self.db = db
