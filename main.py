@@ -734,7 +734,60 @@ class Child():
         self.focus_set()   
 
 class Update(Child):
-     def __init__(self):
+    def __init__(self):
+        super().__init__()
+        self.init_edit()
+        self.view = app
+        self.db = db
+        self.default_data()
+
+    def init_edit(self):
+        self.title('Редактировать позицию')
+        btn_edit = ttk.Button(self, text='Редактировать')
+        btn_edit.place(x=200, y=50 + 30 * 21 + 50)
+        btn_edit.bind('<Button-1>', lambda event: self.view.update_record(
+            self.velue_LastName.get(),
+            self.velue_Name.get(),
+            self.velue_MiddleName.get(),
+            self.velue_Both.get(),
+            self.velue_City.get(),
+            self.velue_SerialNumber.get(),
+            self.velue_dateReg.get(),
+            self.velue_placeIssue.get(),
+            self.velue_divisionCode.get(),
+            self.velue_agresReg.get(),
+            self.velue_SNILS.get(),
+            self.velue_tax.get(),
+            self.velue_birthCertificat.get(),
+            self.velue_issueCertificate.get(),
+            self.velue_LNMFather.get(),
+            self.velue_LNMMather.get(),
+            self.velue_LinkPhoto.get()
+        ))
+        self.btn_ok.destroy()
+
+    def default_data(self):
+        self.db.c.execute('''SELECT * FROM DataBase WHERE id=?''',
+                          (self.view.tree.set(self.view.tree.selection()[0],
+                                              '#1'),))
+        row = self.db.c.fetchone()
+        self.velue_LastName.insert(0, row[1])
+        self.velue_Name.insert(0, row[2])
+        self.velue_MiddleName.insert(0, row[3])
+        self.velue_Both.insert(0, row[4])
+        self.velue_City.insert(0, row[5])
+        self.velue_SerialNumber.insert(0, row[6]),
+        self.velue_dateReg.insert(0, row[7])
+        self.velue_placeIssue.insert(0, row[8])
+        self.velue_divisionCode.insert(0, row[9])
+        self.velue_agresReg.insert(0, row[10])
+        self.velue_SNILS.insert(0, row[11])
+        self.velue_tax.insert(0, row[12])
+        self.velue_birthCertificat.insert(0, row[13])
+        self.velue_issueCertificate.insert(0, row[14])
+        self.velue_LNMFather.insert(0, row[15])
+        self.velue_LNMMather.insert(0, row[16])
+        self.velue_LinkPhoto.insert(0, row[17])
           
 class Search(tk.Toplevel):
     def __init__(self):
