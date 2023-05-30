@@ -404,7 +404,334 @@ class Main(tk.Frame):
 
 
 class Child():
-     def __init__(self):   
+    def __init__(self):
+        super().__init__(root)
+        self.croppedImg = None
+        self.init_child()
+        self.view = app
+
+        self.SecondX = None
+        self.SecondY = None
+        self.FirstX = None
+        self.FirstY = None
+        self.img = None
+        self.image_container = None
+        self.linkPhoto = None
+
+    def init_child(self):
+        self.title('Добавить данные')
+        self.geometry('1200x900')
+        self.resizable(False, False)
+
+        def monochrome(file, tresh):
+            img_grey = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+
+            img_binary = \
+                cv2.threshold(img_grey, tresh, 600, cv2.THRESH_BINARY)[1]
+            cv2.imwrite(file, img_binary)
+
+        def load_photo():
+            try:
+                canvas.delete("all")
+                self.img = tk.filedialog.askopenfilename()
+                self.img = Image.open(self.img)
+                self.img = resize_image(self.img, 600)
+                image = ImageTk.PhotoImage(self.img)
+                self.image_container = canvas.create_image(0, 0, anchor='nw',
+                                                      image=image)
+                canvas.place(x=400, y=0)
+                canvas.config(width=self.img.width, height=self.img.height)
+                root.mainloop()
+            except:
+                print("Что то сломалось")
+
+        def reload_photo():
+            try:
+                canvas.delete("all")
+                image = ImageTk.PhotoImage(self.img)
+                self.image_container = canvas.create_image(0, 0, anchor='nw',
+                                                      image=image)
+                canvas.place(x=400, y=0)
+                root.mainloop()
+            except:
+                print("Что-то сломалось")
+
+        def resize_image(image, fixed_w):
+            fixed_width = fixed_w
+            width_percent = (fixed_width / float(image.size[0]))
+            height_size = int((float(image.size[0]) * float(width_percent)))
+            new_image = image.resize((fixed_width, height_size))
+            return new_image
+
+        def first_point_crop(event):
+            print(event.x, event.y)
+
+            self.FirstX = event.x
+            self.FirstY = event.y
+            reload_photo()
+
+        def second_point_crop(event):
+            print(event.x, event.y)
+
+            self.SecondX = event.x
+            self.SecondY = event.y
+
+            if (self.SecondX < 0):
+                self.SecondX = 0
+            if (self.SecondY < 0):
+                self.SecondY = 0
+            if (self.SecondX > self.img.width):
+                self.SecondX = self.img.width
+            if (self.SecondY > self.img.height):
+                self.SecondY = self.img.height
+
+            canvas.create_rectangle(self.FirstX, self.FirstY, self.SecondX, self.SecondY,
+                                    outline="red")
+
+        def crop_image():
+            if self.FirstX == self.SecondX and self.FirstY == self.SecondY:
+                return 0
+
+            if self.img != None:
+                if self.FirstX < self.SecondX and self.FirstY < self.SecondY:
+                    croppedImg = self.img.crop((self.FirstX, self.FirstY, self.SecondX, self.SecondY))
+                elif self.FirstX < self.SecondX and self.FirstY > self.SecondY:
+                    croppedImg = self.img.crop((self.FirstX, self.SecondY, self.SecondX, self.FirstY))
+                elif self.FirstX > self.SecondX and self.FirstY < self.SecondY:
+                    croppedImg = self.img.crop((self.SecondX, self.FirstY, self.FirstX, self.SecondY))
+                elif self.FirstX > self.SecondX and self.FirstY > self.SecondY:
+                    croppedImg = self.img.crop((self.SecondX, self.SecondY, self.FirstX, self.FirstY))
+
+            return croppedImg
+
+        def scan_photo(velue, arg="none"):
+            croppedImg = crop_image()
+
+            if arg == "serial":
+                croppedImg = croppedImg.rotate(90, expand=True)
+
+            croppedImg.save('temp.png', quality=95)
+            testPhoto = cv2.imread('temp.png')
+
+            config = r'--oem 3 --psm 6'
+
+            tempResult = pytesseract.image_to_string(testPhoto, lang="rus",
+                                                     config=config)
+
+            result = ""
+
+            for i in tempResult:
+                if i != '[' and i != ']' and i != '|' and i != '{' and i != '}':
+                    result += i
+
+            velue.delete(0, 'end')
+            velue.insert(0, result)
+
+            print(result)
+            print("Success")
+
+        def cut_photo():
+            self.img = crop_image(self.img)
+            self.img = resize_image(self.img, 600)
+            canvas.delete("all")
+            image = ImageTk.PhotoImage(self.img)
+            self.image_container = canvas.create_image(0, 0, anchor='nw',
+                                                  image=image)
+            canvas.place(x=400, y=0)
+            root.mainloop()
+
+        def load_pass_photo(X2, Y):
+
+            try:
+                photo = crop_image(self.img)
+                photo = resize_image(photo, 80)
+                new_canvas.delete("all")
+                image = ImageTk.PhotoImage(photo)
+                self.image_container = new_canvas.create_image(0, 0, anchor='nw',
+                                                          image=image)
+                new_canvas.place(x=X2, y=Y + 30 * 16)
+                self.linkPhoto = "images/" + repr(time.time()) + ".png"
+                photo.save(self.linkPhoto, quality=95)
+            except:
+                print("Ошибка загрузки фото")
+            root.mainloop()
+
+        canvas = Canvas(self, width=800, height=800)
+        canvas.place(x=400, y=50)
+
+        canvas.bind("<ButtonPress-1>", first_point_crop)
+        canvas.bind("<ButtonRelease-1>", second_point_crop)
+
+
+
+        self.SecondX = 0
+        self.SecondY = 0
+        self.FirstX = 0
+        self.FirstY = 0
+        self.img = None
+        self.linkPhoto = ''
+
+        X1 = 50
+        Y = 50
+        X2 = 260
+
+        new_canvas = Canvas(self, width=80, height=120)
+        new_canvas.place(x=X2, y=Y + 30 * 16)
+
+        self.velue_LastName = ttk.Entry(self)
+        self.velue_LastName.place(x=X2, y=Y)
+        label_description = tk.Button(self, text='Фамилия:',
+                                      command=lambda: scan_photo(
+                                          self.velue_LastName))
+        label_description.place(x=X1, y=Y)
+
+        self.velue_Name = ttk.Entry(self)
+        self.velue_Name.place(x=X2, y=Y + 30)
+        label_description = tk.Button(self, text='Имя:',
+                                      command=lambda: scan_photo(
+                                          self.velue_Name))
+        label_description.place(x=X1, y=Y + 30)
+
+        self.velue_MiddleName = ttk.Entry(self)
+        self.velue_MiddleName.place(x=X2, y=Y + 30 * 2)
+        label_description = tk.Button(self, text='Отчество:',
+                                      command=lambda: scan_photo(
+                                          self.velue_MiddleName))
+        label_description.place(x=X1, y=Y + 30 * 2)
+
+        self.velue_Both = ttk.Entry(self)
+        self.velue_Both.place(x=X2, y=Y + 30 * 3)
+        label_description = tk.Button(self, text='Дата рождения:',
+                                      command=lambda: scan_photo(
+                                          self.velue_Both))
+        label_description.place(x=X1, y=Y + 30 * 3)
+
+        self.velue_City = ttk.Entry(self)
+        self.velue_City.place(x=X2, y=Y + 30 * 4)
+        label_description = tk.Button(self, text='Место рождения:',
+                                      command=lambda: scan_photo(
+                                          self.velue_City))
+        label_description.place(x=X1, y=Y + 30 * 4)
+
+        self.velue_SerialNumber = ttk.Entry(self)
+        self.velue_SerialNumber.place(x=X2, y=Y + 30 * 5)
+        serial_description = tk.Button(self, text='Серия и номер:',
+                                       command=lambda: scan_photo(
+                                           self.velue_SerialNumber, "serial"))
+        serial_description.place(x=X1, y=Y + 30 * 5)
+
+        self.velue_dateReg = ttk.Entry(self)
+        self.velue_dateReg.place(x=X2, y=Y + 30 * 6)
+        label_description = tk.Button(self, text='Дата выдачи:',
+                                      command=lambda: scan_photo(
+                                          self.velue_dateReg))
+        label_description.place(x=X1, y=Y + 30 * 6)
+
+        self.velue_placeIssue = ttk.Entry(self)
+        self.velue_placeIssue.place(x=X2, y=Y + 30 * 7)
+        label_description = tk.Button(self, text='Паспорт выдан:',
+                                      command=lambda: scan_photo(
+                                          self.velue_placeIssue))
+        label_description.place(x=X1, y=Y + 30 * 7)
+
+        self.velue_divisionCode = ttk.Entry(self)
+        self.velue_divisionCode.place(x=X2, y=Y + 30 * 8)
+        label_description = tk.Button(self, text='Код подразделения:',
+                                      command=lambda: scan_photo(
+                                          self.velue_divisionCode))
+        label_description.place(x=X1, y=Y + 30 * 8)
+
+        self.velue_agresReg = ttk.Entry(self)
+        self.velue_agresReg.place(x=X2, y=Y + 30 * 9)
+        label_description = tk.Button(self, text='Адрес регистрации:',
+                                      command=lambda: scan_photo(
+                                          self.velue_agresReg))
+        label_description.place(x=X1, y=Y + 30 * 9)
+
+        self.velue_SNILS = ttk.Entry(self)
+        self.velue_SNILS.place(x=X2, y=Y + 30 * 10)
+        label_description = tk.Button(self, text='СНИЛС:',
+                                      command=lambda: scan_photo(
+                                          self.velue_SNILS))
+        label_description.place(x=X1, y=Y + 30 * 10)
+
+        self.velue_tax = ttk.Entry(self)
+        self.velue_tax.place(x=X2, y=Y + 30 * 11)
+        label_description = tk.Button(self, text='ИНН:',
+                                      command=lambda: scan_photo(
+                                          self.velue_tax))
+        label_description.place(x=X1, y=Y + 30 * 11)
+
+        self.velue_birthCertificat = ttk.Entry(self)
+        self.velue_birthCertificat.place(x=X2, y=Y + 30 * 12)
+        label_description = tk.Button(self,
+                                      text='Номер сведетельства о рождении:',
+                                      command=lambda: scan_photo(
+                                          self.velue_birthCertificat))
+        label_description.place(x=X1, y=Y + 30 * 12)
+
+        self.velue_issueCertificate = ttk.Entry(self)
+        self.velue_issueCertificate.place(x=X2, y=Y + 30 * 13)
+        label_description = tk.Button(self, text='Орган выдачи сведетельства:',
+                                      command=lambda: scan_photo(
+                                          self.velue_issueCertificate))
+        label_description.place(x=X1, y=Y + 30 * 13)
+
+        self.velue_LNMFather = ttk.Entry(self)
+        self.velue_LNMFather.place(x=X2, y=Y + 30 * 14)
+        label_description = tk.Button(self, text='ФИО отца:',
+                                      command=lambda: scan_photo(
+                                          self.velue_LNMFather))
+        label_description.place(x=X1, y=Y + 30 * 14)
+
+        self.velue_LNMMather = ttk.Entry(self)
+        self.velue_LNMMather.place(x=X2, y=Y + 30 * 15)
+        label_description = tk.Button(self, text='ФИО матери:',
+                                      command=lambda: scan_photo(
+                                          self.velue_LNMMather))
+        label_description.place(x=X1, y=Y + 30 * 15)
+
+        self.velue_LinkPhoto = ttk.Entry(self)
+        # self.velue_LinkPhoto.place(x=X2, y=Y + 30*16)
+        label_description = tk.Button(self, text='Фото:',
+                                      command=lambda: load_pass_photo(X2, Y))
+        label_description.place(x=X1, y=Y + 30 * 16)
+
+        self.btn_ok = ttk.Button(self, text="Сканировать фото",
+                                 command=lambda: load_photo())
+        self.btn_ok.place(x=60, y=Y + 30 * 20)
+
+        self.btn_cut = ttk.Button(self, text="Обрезать",
+                                  command=lambda: cut_photo())
+        self.btn_cut.place(x=200, y=Y + 30 * 20)
+
+        self.btn_ok = ttk.Button(self, text='Добавить')
+        self.btn_ok.place(x=220, y=Y + 30 * 21 + 50)
+        self.btn_ok.bind('<Button-1>', lambda event: self.view.records(
+            self.velue_LastName.get(),
+            self.velue_Name.get(),
+            self.velue_MiddleName.get(),
+            self.velue_Both.get(),
+            self.velue_City.get(),
+            self.velue_SerialNumber.get(),
+            self.velue_dateReg.get(),
+            self.velue_placeIssue.get(),
+            self.velue_divisionCode.get(),
+            self.velue_agresReg.get(),
+            self.velue_SNILS.get(),
+            self.velue_tax.get(),
+            self.velue_birthCertificat.get(),
+            self.velue_issueCertificate.get(),
+            self.velue_LNMFather.get(),
+            self.velue_LNMMather.get(),
+            self.linkPhoto
+        ))
+
+        btn_cancel = ttk.Button(self, text='Закрыть', command=self.destroy)
+        btn_cancel.place(x=300, y=Y + 30 * 21 + 50)
+
+        self.grab_set()
+        self.focus_set()   
 
 class Update(Child):
      def __init__(self):
