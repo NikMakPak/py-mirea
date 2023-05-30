@@ -1,4 +1,4 @@
-'''
+"""
 Архитектура приложения:
 - Main
 - Child
@@ -6,7 +6,8 @@
 - Search
 - SearchBetween
 - DB
-'''
+"""
+
 import tkinter as tk
 import sqlite3
 import pytesseract
@@ -19,13 +20,14 @@ import time
 pytesseract.pytesseract.tesseract_cmd = \
     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
+
 class Main(tk.Frame):
     def __init__(self, root):
         super().__init__(root)
         self.init_main()
         self.db = db
         self.view_records()
-        
+
     def init_main(self):
         toolbar = tk.Frame(bg='#d7d8e0', bd=2)
         toolbar.pack(side=tk.TOP, fill=tk.X)
@@ -62,14 +64,6 @@ class Main(tk.Frame):
                                 image=self.refresh_img,
                                 compound=tk.TOP, command=self.view_records)
         btn_refresh.pack(side=tk.RIGHT)
-
-        # self.aboutImage = Image.open('about.png')
-        # self.aboutImage = self.aboutImage.resize((45, 45))
-        # self.aboutImage = ImageTk.PhotoImage(self.aboutImage)
-        # btn_about = tk.Button(toolbar, text='Об авторах', bg='#d7d8e0', bd=0,
-        #                       compound=tk.TOP, image=self.aboutImage,
-        #                       command=AboutUs)
-        # btn_about.place(relx=0.45, rely=0.1)
 
         pasInfo = tk.Frame(bg='#d7d8e0', bd=2)
         pasInfo.pack(side=tk.TOP)
@@ -117,12 +111,6 @@ class Main(tk.Frame):
 
         self.canvas = Canvas(pasInfo, width=190, height=285)
         self.canvas.place(x=1, y=10)
-
-        # self.img1 = ImageTk.PhotoImage(file="images/pas2.png")
-        #
-        # self.image_container = self.canvas.create_image(0, 0, anchor="nw",
-        #                                                 image=self.img1)
-        # self.canvas.itemconfig(self.image_container, image=self.img1)
 
         X1 = 200
         X2 = 330
@@ -237,8 +225,8 @@ class Main(tk.Frame):
         vsb = ttk.Scrollbar(orient="horizontal", command=self.tree.xview)
         self.tree.configure(xscrollcommand=vsb.set)
         vsb.place(rely=0.97, relwidth=1, anchor=W, height=15)
-        
-        def select_item(a):
+
+        def select_item():
             curItem = self.tree.focus()
             if curItem != '':
                 self.value_lastName.config(
@@ -359,7 +347,7 @@ class Main(tk.Frame):
                               [self.tree.set(selection_item, '#1')])
         self.db.conn.commit()
         self.view_records()
-	
+
     def search_records(self, description):
         description = '%' + description + '%'
         sqlString = f"""SELECT * FROM DataBase  
@@ -423,13 +411,6 @@ class Child(tk.Toplevel):
         self.geometry('1200x900')
         self.resizable(False, False)
 
-        def monochrome(file, tresh):
-            img_grey = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-
-            img_binary = \
-                cv2.threshold(img_grey, tresh, 600, cv2.THRESH_BINARY)[1]
-            cv2.imwrite(file, img_binary)
-
         def load_photo():
             try:
                 canvas.delete("all")
@@ -438,19 +419,19 @@ class Child(tk.Toplevel):
                 self.img = resize_image(self.img, 600)
                 image = ImageTk.PhotoImage(self.img)
                 self.image_container = canvas.create_image(0, 0, anchor='nw',
-                                                      image=image)
+                                                           image=image)
                 canvas.place(x=400, y=0)
                 canvas.config(width=self.img.width, height=self.img.height)
                 root.mainloop()
             except:
-                print("Что то сломалось")
+                print("Что-то сломалось")
 
         def reload_photo():
             try:
                 canvas.delete("all")
                 image = ImageTk.PhotoImage(self.img)
                 self.image_container = canvas.create_image(0, 0, anchor='nw',
-                                                      image=image)
+                                                           image=image)
                 canvas.place(x=400, y=0)
                 root.mainloop()
             except:
@@ -504,7 +485,7 @@ class Child(tk.Toplevel):
 
             return croppedImg
 
-        def scan_photo(velue, arg="none"):
+        def scan_photo(value, arg="none"):
             croppedImg = crop_image()
 
             if arg == "serial":
@@ -524,8 +505,8 @@ class Child(tk.Toplevel):
                 if i != '[' and i != ']' and i != '|' and i != '{' and i != '}':
                     result += i
 
-            velue.delete(0, 'end')
-            velue.insert(0, result)
+            value.delete(0, 'end')
+            value.insert(0, result)
 
             print(result)
             print("Success")
@@ -536,7 +517,7 @@ class Child(tk.Toplevel):
             canvas.delete("all")
             image = ImageTk.PhotoImage(self.img)
             self.image_container = canvas.create_image(0, 0, anchor='nw',
-                                                  image=image)
+                                                       image=image)
             canvas.place(x=400, y=0)
             root.mainloop()
 
@@ -548,7 +529,7 @@ class Child(tk.Toplevel):
                 new_canvas.delete("all")
                 image = ImageTk.PhotoImage(photo)
                 self.image_container = new_canvas.create_image(0, 0, anchor='nw',
-                                                          image=image)
+                                                               image=image)
                 new_canvas.place(x=X2, y=Y + 30 * 16)
                 self.linkPhoto = "images/" + repr(time.time()) + ".png"
                 photo.save(self.linkPhoto, quality=95)
@@ -561,8 +542,6 @@ class Child(tk.Toplevel):
 
         canvas.bind("<ButtonPress-1>", first_point_crop)
         canvas.bind("<ButtonRelease-1>", second_point_crop)
-
-
 
         self.SecondX = 0
         self.SecondY = 0
@@ -578,121 +557,121 @@ class Child(tk.Toplevel):
         new_canvas = Canvas(self, width=80, height=120)
         new_canvas.place(x=X2, y=Y + 30 * 16)
 
-        self.velue_LastName = ttk.Entry(self)
-        self.velue_LastName.place(x=X2, y=Y)
+        self.value_LastName = ttk.Entry(self)
+        self.value_LastName.place(x=X2, y=Y)
         label_description = tk.Button(self, text='Фамилия:',
                                       command=lambda: scan_photo(
-                                          self.velue_LastName))
+                                          self.value_LastName))
         label_description.place(x=X1, y=Y)
 
-        self.velue_Name = ttk.Entry(self)
-        self.velue_Name.place(x=X2, y=Y + 30)
+        self.value_Name = ttk.Entry(self)
+        self.value_Name.place(x=X2, y=Y + 30)
         label_description = tk.Button(self, text='Имя:',
                                       command=lambda: scan_photo(
-                                          self.velue_Name))
+                                          self.value_Name))
         label_description.place(x=X1, y=Y + 30)
 
-        self.velue_MiddleName = ttk.Entry(self)
-        self.velue_MiddleName.place(x=X2, y=Y + 30 * 2)
+        self.value_MiddleName = ttk.Entry(self)
+        self.value_MiddleName.place(x=X2, y=Y + 30 * 2)
         label_description = tk.Button(self, text='Отчество:',
                                       command=lambda: scan_photo(
-                                          self.velue_MiddleName))
+                                          self.value_MiddleName))
         label_description.place(x=X1, y=Y + 30 * 2)
 
-        self.velue_Both = ttk.Entry(self)
-        self.velue_Both.place(x=X2, y=Y + 30 * 3)
+        self.value_Both = ttk.Entry(self)
+        self.value_Both.place(x=X2, y=Y + 30 * 3)
         label_description = tk.Button(self, text='Дата рождения:',
                                       command=lambda: scan_photo(
-                                          self.velue_Both))
+                                          self.value_Both))
         label_description.place(x=X1, y=Y + 30 * 3)
 
-        self.velue_City = ttk.Entry(self)
-        self.velue_City.place(x=X2, y=Y + 30 * 4)
+        self.value_City = ttk.Entry(self)
+        self.value_City.place(x=X2, y=Y + 30 * 4)
         label_description = tk.Button(self, text='Место рождения:',
                                       command=lambda: scan_photo(
-                                          self.velue_City))
+                                          self.value_City))
         label_description.place(x=X1, y=Y + 30 * 4)
 
-        self.velue_SerialNumber = ttk.Entry(self)
-        self.velue_SerialNumber.place(x=X2, y=Y + 30 * 5)
+        self.value_SerialNumber = ttk.Entry(self)
+        self.value_SerialNumber.place(x=X2, y=Y + 30 * 5)
         serial_description = tk.Button(self, text='Серия и номер:',
                                        command=lambda: scan_photo(
-                                           self.velue_SerialNumber, "serial"))
+                                           self.value_SerialNumber, "serial"))
         serial_description.place(x=X1, y=Y + 30 * 5)
 
-        self.velue_dateReg = ttk.Entry(self)
-        self.velue_dateReg.place(x=X2, y=Y + 30 * 6)
+        self.value_dateReg = ttk.Entry(self)
+        self.value_dateReg.place(x=X2, y=Y + 30 * 6)
         label_description = tk.Button(self, text='Дата выдачи:',
                                       command=lambda: scan_photo(
-                                          self.velue_dateReg))
+                                          self.value_dateReg))
         label_description.place(x=X1, y=Y + 30 * 6)
 
-        self.velue_placeIssue = ttk.Entry(self)
-        self.velue_placeIssue.place(x=X2, y=Y + 30 * 7)
+        self.value_placeIssue = ttk.Entry(self)
+        self.value_placeIssue.place(x=X2, y=Y + 30 * 7)
         label_description = tk.Button(self, text='Паспорт выдан:',
                                       command=lambda: scan_photo(
-                                          self.velue_placeIssue))
+                                          self.value_placeIssue))
         label_description.place(x=X1, y=Y + 30 * 7)
 
-        self.velue_divisionCode = ttk.Entry(self)
-        self.velue_divisionCode.place(x=X2, y=Y + 30 * 8)
+        self.value_divisionCode = ttk.Entry(self)
+        self.value_divisionCode.place(x=X2, y=Y + 30 * 8)
         label_description = tk.Button(self, text='Код подразделения:',
                                       command=lambda: scan_photo(
-                                          self.velue_divisionCode))
+                                          self.value_divisionCode))
         label_description.place(x=X1, y=Y + 30 * 8)
 
-        self.velue_agresReg = ttk.Entry(self)
-        self.velue_agresReg.place(x=X2, y=Y + 30 * 9)
+        self.value_agresReg = ttk.Entry(self)
+        self.value_agresReg.place(x=X2, y=Y + 30 * 9)
         label_description = tk.Button(self, text='Адрес регистрации:',
                                       command=lambda: scan_photo(
-                                          self.velue_agresReg))
+                                          self.value_agresReg))
         label_description.place(x=X1, y=Y + 30 * 9)
 
-        self.velue_SNILS = ttk.Entry(self)
-        self.velue_SNILS.place(x=X2, y=Y + 30 * 10)
+        self.value_SNILS = ttk.Entry(self)
+        self.value_SNILS.place(x=X2, y=Y + 30 * 10)
         label_description = tk.Button(self, text='СНИЛС:',
                                       command=lambda: scan_photo(
-                                          self.velue_SNILS))
+                                          self.value_SNILS))
         label_description.place(x=X1, y=Y + 30 * 10)
 
-        self.velue_tax = ttk.Entry(self)
-        self.velue_tax.place(x=X2, y=Y + 30 * 11)
+        self.value_tax = ttk.Entry(self)
+        self.value_tax.place(x=X2, y=Y + 30 * 11)
         label_description = tk.Button(self, text='ИНН:',
                                       command=lambda: scan_photo(
-                                          self.velue_tax))
+                                          self.value_tax))
         label_description.place(x=X1, y=Y + 30 * 11)
 
-        self.velue_birthCertificat = ttk.Entry(self)
-        self.velue_birthCertificat.place(x=X2, y=Y + 30 * 12)
+        self.value_birthCertificat = ttk.Entry(self)
+        self.value_birthCertificat.place(x=X2, y=Y + 30 * 12)
         label_description = tk.Button(self,
                                       text='Номер сведетельства о рождении:',
                                       command=lambda: scan_photo(
-                                          self.velue_birthCertificat))
+                                          self.value_birthCertificat))
         label_description.place(x=X1, y=Y + 30 * 12)
 
-        self.velue_issueCertificate = ttk.Entry(self)
-        self.velue_issueCertificate.place(x=X2, y=Y + 30 * 13)
+        self.value_issueCertificate = ttk.Entry(self)
+        self.value_issueCertificate.place(x=X2, y=Y + 30 * 13)
         label_description = tk.Button(self, text='Орган выдачи сведетельства:',
                                       command=lambda: scan_photo(
-                                          self.velue_issueCertificate))
+                                          self.value_issueCertificate))
         label_description.place(x=X1, y=Y + 30 * 13)
 
-        self.velue_LNMFather = ttk.Entry(self)
-        self.velue_LNMFather.place(x=X2, y=Y + 30 * 14)
+        self.value_LNMFather = ttk.Entry(self)
+        self.value_LNMFather.place(x=X2, y=Y + 30 * 14)
         label_description = tk.Button(self, text='ФИО отца:',
                                       command=lambda: scan_photo(
-                                          self.velue_LNMFather))
+                                          self.value_LNMFather))
         label_description.place(x=X1, y=Y + 30 * 14)
 
-        self.velue_LNMMather = ttk.Entry(self)
-        self.velue_LNMMather.place(x=X2, y=Y + 30 * 15)
+        self.value_LNMMather = ttk.Entry(self)
+        self.value_LNMMather.place(x=X2, y=Y + 30 * 15)
         label_description = tk.Button(self, text='ФИО матери:',
                                       command=lambda: scan_photo(
-                                          self.velue_LNMMather))
+                                          self.value_LNMMather))
         label_description.place(x=X1, y=Y + 30 * 15)
 
-        self.velue_LinkPhoto = ttk.Entry(self)
-        # self.velue_LinkPhoto.place(x=X2, y=Y + 30*16)
+        self.value_LinkPhoto = ttk.Entry(self)
+        # self.value_LinkPhoto.place(x=X2, y=Y + 30*16)
         label_description = tk.Button(self, text='Фото:',
                                       command=lambda: load_pass_photo(X2, Y))
         label_description.place(x=X1, y=Y + 30 * 16)
@@ -708,22 +687,22 @@ class Child(tk.Toplevel):
         self.btn_ok = ttk.Button(self, text='Добавить')
         self.btn_ok.place(x=220, y=Y + 30 * 21 + 50)
         self.btn_ok.bind('<Button-1>', lambda event: self.view.records(
-            self.velue_LastName.get(),
-            self.velue_Name.get(),
-            self.velue_MiddleName.get(),
-            self.velue_Both.get(),
-            self.velue_City.get(),
-            self.velue_SerialNumber.get(),
-            self.velue_dateReg.get(),
-            self.velue_placeIssue.get(),
-            self.velue_divisionCode.get(),
-            self.velue_agresReg.get(),
-            self.velue_SNILS.get(),
-            self.velue_tax.get(),
-            self.velue_birthCertificat.get(),
-            self.velue_issueCertificate.get(),
-            self.velue_LNMFather.get(),
-            self.velue_LNMMather.get(),
+            self.value_LastName.get(),
+            self.value_Name.get(),
+            self.value_MiddleName.get(),
+            self.value_Both.get(),
+            self.value_City.get(),
+            self.value_SerialNumber.get(),
+            self.value_dateReg.get(),
+            self.value_placeIssue.get(),
+            self.value_divisionCode.get(),
+            self.value_agresReg.get(),
+            self.value_SNILS.get(),
+            self.value_tax.get(),
+            self.value_birthCertificat.get(),
+            self.value_issueCertificate.get(),
+            self.value_LNMFather.get(),
+            self.value_LNMMather.get(),
             self.linkPhoto
         ))
 
@@ -731,7 +710,8 @@ class Child(tk.Toplevel):
         btn_cancel.place(x=300, y=Y + 30 * 21 + 50)
 
         self.grab_set()
-        self.focus_set()   
+        self.focus_set()
+
 
 class Update(Child):
     def __init__(self):
@@ -746,23 +726,23 @@ class Update(Child):
         btn_edit = ttk.Button(self, text='Редактировать')
         btn_edit.place(x=200, y=50 + 30 * 21 + 50)
         btn_edit.bind('<Button-1>', lambda event: self.view.update_record(
-            self.velue_LastName.get(),
-            self.velue_Name.get(),
-            self.velue_MiddleName.get(),
-            self.velue_Both.get(),
-            self.velue_City.get(),
-            self.velue_SerialNumber.get(),
-            self.velue_dateReg.get(),
-            self.velue_placeIssue.get(),
-            self.velue_divisionCode.get(),
-            self.velue_agresReg.get(),
-            self.velue_SNILS.get(),
-            self.velue_tax.get(),
-            self.velue_birthCertificat.get(),
-            self.velue_issueCertificate.get(),
-            self.velue_LNMFather.get(),
-            self.velue_LNMMather.get(),
-            self.velue_LinkPhoto.get()
+            self.value_LastName.get(),
+            self.value_Name.get(),
+            self.value_MiddleName.get(),
+            self.value_Both.get(),
+            self.value_City.get(),
+            self.value_SerialNumber.get(),
+            self.value_dateReg.get(),
+            self.value_placeIssue.get(),
+            self.value_divisionCode.get(),
+            self.value_agresReg.get(),
+            self.value_SNILS.get(),
+            self.value_tax.get(),
+            self.value_birthCertificat.get(),
+            self.value_issueCertificate.get(),
+            self.value_LNMFather.get(),
+            self.value_LNMMather.get(),
+            self.value_LinkPhoto.get()
         ))
         self.btn_ok.destroy()
 
@@ -771,24 +751,25 @@ class Update(Child):
                           (self.view.tree.set(self.view.tree.selection()[0],
                                               '#1'),))
         row = self.db.c.fetchone()
-        self.velue_LastName.insert(0, row[1])
-        self.velue_Name.insert(0, row[2])
-        self.velue_MiddleName.insert(0, row[3])
-        self.velue_Both.insert(0, row[4])
-        self.velue_City.insert(0, row[5])
-        self.velue_SerialNumber.insert(0, row[6]),
-        self.velue_dateReg.insert(0, row[7])
-        self.velue_placeIssue.insert(0, row[8])
-        self.velue_divisionCode.insert(0, row[9])
-        self.velue_agresReg.insert(0, row[10])
-        self.velue_SNILS.insert(0, row[11])
-        self.velue_tax.insert(0, row[12])
-        self.velue_birthCertificat.insert(0, row[13])
-        self.velue_issueCertificate.insert(0, row[14])
-        self.velue_LNMFather.insert(0, row[15])
-        self.velue_LNMMather.insert(0, row[16])
-        self.velue_LinkPhoto.insert(0, row[17])
-          
+        self.value_LastName.insert(0, row[1])
+        self.value_Name.insert(0, row[2])
+        self.value_MiddleName.insert(0, row[3])
+        self.value_Both.insert(0, row[4])
+        self.value_City.insert(0, row[5])
+        self.value_SerialNumber.insert(0, row[6]),
+        self.value_dateReg.insert(0, row[7])
+        self.value_placeIssue.insert(0, row[8])
+        self.value_divisionCode.insert(0, row[9])
+        self.value_agresReg.insert(0, row[10])
+        self.value_SNILS.insert(0, row[11])
+        self.value_tax.insert(0, row[12])
+        self.value_birthCertificat.insert(0, row[13])
+        self.value_issueCertificate.insert(0, row[14])
+        self.value_LNMFather.insert(0, row[15])
+        self.value_LNMMather.insert(0, row[16])
+        self.value_LinkPhoto.insert(0, row[17])
+
+
 class Search(tk.Toplevel):
     def __init__(self):
         super().__init__()
@@ -823,6 +804,7 @@ class Search(tk.Toplevel):
         btn_search_between.bind('<Button-1>', lambda event: self.destroy(),
                                 add='+')
 
+
 class SearchBetween(tk.Toplevel):
     def __init__(self):
         super().__init__()
@@ -856,6 +838,7 @@ class SearchBetween(tk.Toplevel):
             self.first_value.get(), self.second_value.get()))
         btn_search.bind('<Button-1>', lambda event: self.destroy(), add='+')
 
+
 class DB:
     def __init__(self):
         self.conn = sqlite3.connect('DataBase.db')
@@ -869,7 +852,7 @@ class DB:
             birthCertificat text, issueCertificate text, LNMFather text,
             LNMMather text, LinkPhoto text )''')
         self.conn.commit()
-    
+
     def insert_data(self, lastName, Name, middleName, both, city, serialNumber,
                     dateReg, placeIssue, divisionCode, agresReg, SNILS, tax,
                     birthCertificat, issueCertificate, LNMFather, LNMMather,
