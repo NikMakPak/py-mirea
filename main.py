@@ -409,11 +409,72 @@ class Child():
 class Update(Child):
      def __init__(self):
           
-class Search():
-     def __init__(self):
+class Search(tk.Toplevel):
+    def __init__(self):
+        super().__init__()
+        self.init_search()
+        self.view = app
 
-class SearchBetween():
-     def __init__(self):
+    def init_search(self):
+        self.title('Поиск')
+        self.geometry('300x120')
+        self.resizable(False, False)
+
+        label_search = tk.Label(self, text='Поиск')
+        label_search.place(x=50, y=20)
+
+        self.entry_search = ttk.Entry(self)
+        self.entry_search.place(x=105, y=20, width=150)
+
+        btn_cancel = ttk.Button(self, text='Закрыть', command=self.destroy)
+        btn_cancel.place(x=185, y=50)
+
+        btn_search = ttk.Button(self, text='Поиск')
+        btn_search.place(x=105, y=50)
+
+        btn_search_between = ttk.Button(self, text='Поиск между')
+        btn_search_between.place(x=20, y=50)
+
+        btn_search.bind('<Button-1>', lambda event: self.view.search_records(
+            self.entry_search.get()))
+        btn_search.bind('<Button-1>', lambda event: self.destroy(), add='+')
+
+        btn_search_between.bind('<Button-1>', lambda event: SearchBetween())
+        btn_search_between.bind('<Button-1>', lambda event: self.destroy(),
+                                add='+')
+
+class SearchBetween(tk.Toplevel):
+    def __init__(self):
+        super().__init__()
+        self.init_search()
+        self.view = app
+
+    def init_search(self):
+        self.title('Поиск между значениями')
+        self.geometry('300x100')
+        self.resizable(False, False)
+
+        label1_search = tk.Label(self, text='От:')
+        label1_search.place(relx=0.1, rely=0.15)
+
+        label2_search = tk.Label(self, text='До:')
+        label2_search.place(relx=0.5, rely=0.15)
+
+        self.first_value = ttk.Entry(self)
+        self.first_value.place(relx=0.1, rely=0.45)
+
+        self.second_value = ttk.Entry(self)
+        self.second_value.place(relx=0.5, rely=0.45)
+
+        btn_cancel = ttk.Button(self, text='Закрыть', command=self.destroy)
+        btn_cancel.place(relx=0.5, rely=0.7)
+
+        btn_search = ttk.Button(self, text='Поиск')
+        btn_search.place(relx=0.1, rely=0.7)
+
+        btn_search.bind('<Button-1>', lambda event: self.view.search_between(
+            self.first_value.get(), self.second_value.get()))
+        btn_search.bind('<Button-1>', lambda event: self.destroy(), add='+')
 
 class DB:
     def __init__(self):
