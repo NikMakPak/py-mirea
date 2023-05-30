@@ -403,7 +403,7 @@ class Main(tk.Frame):
         Search()
 
 
-class Child():
+class Child(tk.Toplevel):
     def __init__(self):
         super().__init__(root)
         self.croppedImg = None
